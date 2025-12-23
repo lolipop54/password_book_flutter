@@ -75,4 +75,14 @@ class Databasehelper {
     return null;
   }
 
+  Future<User?> getFirstUser() async{
+    final db = await database;
+    List<Map<String,dynamic>> firstUser = await db.query('users', limit: 1);
+    if(firstUser.isNotEmpty){
+      return User.fromMap(firstUser.first);
+    }
+    return null;
+
+  }
+
 }

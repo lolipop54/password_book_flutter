@@ -11,8 +11,8 @@ class AuthHelper{
   Future<myResponse> registerSingleUser(String username, String password) async{
     try{
       final dataBase = Databasehelper();
-      User? existingUser = await dataBase.getUser(username);
-      if(existingUser != null){
+      bool existingUser = await dataBase.hasUsers();
+      if(existingUser){
         return myResponse(success: false, message: "已存在用户，不允许多次注册");
       }
 
@@ -43,18 +43,18 @@ class AuthHelper{
     }
   }
 
-  Future<myResponse> verifyUser(String username, String password) async {
+  Future<myResponse> verifyUser(String password) async {
     try{
-      User? user = await Databasehelper().getUser(username);
+      User? user = await Databasehelper().getFirstUser();
       if (user == null) {
-        return myResponse(success: false, message: "用户不存在");
+        return myResponse(success: false, message: "不存在帐户");
       }
 
       bool success = await EncryptionHelper.verifyPassword(
           password, user.salt, user.passwordHash);
 
       if (success) {
-        return myResponse(success: true, message: "登录成功");
+        return myResponse(success: true, message: user.username);
       } else {
         return myResponse(success: false, message: "密码错误");
       }

@@ -84,16 +84,18 @@ class _RegistryState extends State<Registry> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.15,
                   width: MediaQuery.of(context).size.width * 0.9,
-                  child: Text.rich(
-                    TextSpan(
-                      text: "注册\n",
-                      style: TextStyle(fontSize: 64, color: colorDark),
-                      children: [
-                        TextSpan(
-                          text: "注册一个新账号",
-                          style: TextStyle(fontSize: 15, color: colorGray),
-                        ),
-                      ],
+                  child: Center(
+                    child: Text.rich(
+                      TextSpan(
+                        text: "注册\n",
+                        style: TextStyle(fontSize: 64, color: colorDark),
+                        children: [
+                          TextSpan(
+                            text: "注册一个新账号",
+                            style: TextStyle(fontSize: 15, color: colorGray),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
