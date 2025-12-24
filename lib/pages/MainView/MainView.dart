@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:password_book_flutter/pages/ui/colors.dart';
 
-import '../Generate/Generate.dart';
 import '../Home/Home.dart';
 import '../Settings/Settings.dart';
 import 'MainViewController.dart';
@@ -11,27 +11,124 @@ class Mainview extends StatelessWidget {
 
   MainviewController controller = Get.put(MainviewController());
 
-  final List<Widget> pages = [Home(), Generate(), Settings()];
+  final double buttonSize = 32;
+
+  final List<Widget> pages = [Home(), Settings()];
+
+  Widget getHomeIcon() {
+    return Obx(
+      () => GestureDetector(
+        onTap: () {
+          controller.currentTab = 0;
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.home, color: colorDark, size: buttonSize),
+            Visibility(
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              visible: controller.currentTab == 0 ? true : false,
+              child: Container(
+                width: 10,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: colorDark,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getSettingsIcon() {
+    return Obx(
+      () => GestureDetector(
+        onTap: () {
+          controller.currentTab = 1;
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.settings, color: colorDark, size: buttonSize),
+            Visibility(
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              visible: controller.currentTab == 1 ? true : false,
+              child: Container(
+                width: 10,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: colorDark,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(() => SafeArea(child: IndexedStack(index: controller.currentTab, children: pages))),
-      bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
-          currentIndex: controller.currentTab,
-          onTap: (index) {
-            controller.currentTab = index;
-          },
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.generating_tokens_outlined),
-              label: 'Generate',
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Obx(
+              () => IndexedStack(index: controller.currentTab, children: pages),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
+                  child: Container(
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: colorInputBorder,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        getHomeIcon(),
+                        SizedBox(width: buttonSize),
+                        getSettingsIcon(),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 40,
+                  child: GestureDetector(
+                    onTap: (){
+                      Get.toNamed('/AddPassword');
+                    },
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: colorWhite,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
           ],
         ),

@@ -8,6 +8,8 @@ class AuthHelper{
   static final instance = AuthHelper._internal();
   factory AuthHelper() => instance;
 
+  User? currentUser = null;
+
   Future<myResponse> registerSingleUser(String username, String password) async{
     try{
       final dataBase = Databasehelper();
@@ -54,6 +56,7 @@ class AuthHelper{
           password, user.salt, user.passwordHash);
 
       if (success) {
+        currentUser = user;
         return myResponse(success: true, message: user.username);
       } else {
         return myResponse(success: false, message: "密码错误");

@@ -1,3 +1,4 @@
+import 'package:password_book_flutter/entity/PasswordEntry.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -5,7 +6,9 @@ import '../entity/user.dart';
 
 class Databasehelper {
   Databasehelper._internal();
+
   static final Databasehelper _instance = Databasehelper._internal();
+
   factory Databasehelper() => _instance;
 
   static Database? _database;
@@ -44,12 +47,14 @@ class Databasehelper {
         note TEXT,
         created_at TEXT,
         updated_at TEXT,
+        last_used_time TEXT,
+        used_count INTEGER,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
-
   }
 
+  //用户相关操作
   Future<int> insertUser(Map<String, dynamic> user) async {
     Database db = await database;
     return await db.insert('users', user);
@@ -75,14 +80,55 @@ class Databasehelper {
     return null;
   }
 
-  Future<User?> getFirstUser() async{
+  Future<User?> getFirstUser() async {
     final db = await database;
-    List<Map<String,dynamic>> firstUser = await db.query('users', limit: 1);
-    if(firstUser.isNotEmpty){
+    List<Map<String, dynamic>> firstUser = await db.query('users', limit: 1);
+    if (firstUser.isNotEmpty) {
       return User.fromMap(firstUser.first);
     }
     return null;
-
   }
 
+  // 密码条目相关操作
+  Future<int> insertPasswordEntry(PasswordEntry entry) async {
+    final db = await database;
+    return await db.insert('password_entries', entry.toMap());
+  }
+
+  Future<List<PasswordEntry>> getAllPasswordEntries(int userId) async {
+    final db = await database;
+    var list = await db.query('password_entries', orderBy: 'created_at DESC', where: 'user_id = ?', whereArgs: [userId]);
+    return list.map((e) => PasswordEntry.fromMap(e)).toList();
+  }
+
+  Future<List<PasswordEntry>> getPasswordEntry(int id) async {
+    final db = await database;
+    var list = await db.query('password_entries', where: 'id = ?', whereArgs: [id]);
+    return list.map((e) => PasswordEntry.fromMap(e)).toList();
+  }
+
+
+  Future<bool> deletePasswordEntry(int id) async {
+    final db = await database;
+    int rows_affected = await db.delete(
+      'password_entries',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (rows_affected > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<int> updatePasswordEntry(PasswordEntry entry) async {
+    final db = await database;
+    return await db.update(
+      'password_entries',
+      entry.toMap(),
+      where: 'id = ?',
+      whereArgs: [entry.id],
+    );
+  }
 }
