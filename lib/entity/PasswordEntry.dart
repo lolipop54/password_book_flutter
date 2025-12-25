@@ -10,6 +10,8 @@ class PasswordEntry {
   final DateTime? updatedAt;
   final DateTime? lastUsedTime;
   final int? usedCount;
+  final String mac;
+  final String nonce;
 
 
   PasswordEntry({
@@ -24,6 +26,8 @@ class PasswordEntry {
     this.updatedAt,
     this.lastUsedTime,
     this.usedCount,
+    required this.mac,
+    required this.nonce
   });
 
   Map<String, dynamic> toMap() {
@@ -39,6 +43,8 @@ class PasswordEntry {
       'updated_at': updatedAt?.toIso8601String(),
       'last_used_time': lastUsedTime?.toIso8601String(),
       'used_count': usedCount,
+      'mac': mac,
+      'nonce': nonce
     };
   }
 
@@ -61,6 +67,8 @@ class PasswordEntry {
           ? DateTime.parse(map['last_used_time'])
           : null,
       usedCount: map['used_count'],
+      nonce: map['nonce'],
+      mac: map['mac']
     );
   }
 
@@ -76,6 +84,8 @@ class PasswordEntry {
     DateTime? updatedAt,
     DateTime? lastUsedTime,
     int? usedCount,
+    String? mac,
+    String? nonce
   }) {
     return PasswordEntry(
       id: id ?? this.id,
@@ -89,6 +99,8 @@ class PasswordEntry {
       updatedAt: updatedAt ?? this.updatedAt,
       lastUsedTime: lastUsedTime ?? this.lastUsedTime,
       usedCount: usedCount ?? this.usedCount,
+      nonce: nonce ?? this.nonce,
+      mac: mac ?? this.mac
     );
   }
 }

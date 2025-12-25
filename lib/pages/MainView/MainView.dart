@@ -5,9 +5,14 @@ import 'package:password_book_flutter/pages/ui/colors.dart';
 import '../Home/Home.dart';
 import '../Settings/Settings.dart';
 import 'MainViewController.dart';
+class Mainview extends StatefulWidget {
+  const Mainview({super.key});
 
-class Mainview extends StatelessWidget {
-  Mainview({super.key});
+  @override
+  State<Mainview> createState() => _MainviewState();
+}
+
+class _MainviewState extends State<Mainview> {
 
   MainviewController controller = Get.put(MainviewController());
 
@@ -77,6 +82,8 @@ class Mainview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -84,7 +91,7 @@ class Mainview extends StatelessWidget {
             Obx(
               () => IndexedStack(index: controller.currentTab, children: pages),
             ),
-            Stack(
+            if(!isKeyboardVisible) Stack(
               alignment: Alignment.center,
               children: [
                 Positioned(
@@ -111,7 +118,7 @@ class Mainview extends StatelessWidget {
                   bottom: 40,
                   child: GestureDetector(
                     onTap: (){
-                      Get.toNamed('/AddPassword');
+                      Get.toNamed('/Password');
                     },
                     child: Container(
                       width: 64,

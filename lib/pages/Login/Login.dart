@@ -20,6 +20,8 @@ class _LoginState extends State<Login> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool isPressLogin = false;
+
   void _onLogin() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -165,6 +167,18 @@ class _LoginState extends State<Login> {
 
                         SizedBox(height: 40),
                         GestureDetector(
+                          onTapDown: (_){
+                            isPressLogin = true;
+                            setState(() {});
+                          },
+                          onTapUp: (_){
+                            isPressLogin = false;
+                            setState(() {});
+                          },
+                          onTapCancel: (){
+                            isPressLogin = false;
+                            setState(() {});
+                          },
                           onTap: _onLogin,
                           child: Container(
                             alignment: Alignment.center,
@@ -172,11 +186,12 @@ class _LoginState extends State<Login> {
                             height: 50,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: colorPrimary,
+                              color: isPressLogin ? colorWhite : colorPrimary,
+                              border: Border.all(color: colorPrimary, width: 4)
                             ),
                             child: Text(
                               "登    录",
-                              style: TextStyle(color: colorWhite, fontSize: 25),
+                              style: TextStyle(color: isPressLogin ? colorPrimary : colorWhite, fontSize: 25),
                             ),
                           ),
                         ),

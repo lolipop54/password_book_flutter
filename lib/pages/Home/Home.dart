@@ -1,10 +1,10 @@
+import 'package:animated_list_plus/animated_list_plus.dart';
+import 'package:animated_list_plus/transitions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:password_book_flutter/helpers/SnackBarHelper.dart';
 
+import '../../entity/PasswordEntry.dart';
 import '../ui/colors.dart';
 import 'HomeController.dart';
 
@@ -13,8 +13,126 @@ class Home extends StatelessWidget {
 
   final controller = Get.put(Homecontroller());
 
+  Widget _buildCards() {
+    return Obx(
+      () => Expanded(
+        child: ImplicitlyAnimatedList<PasswordEntry>(
+          areItemsTheSame: (a, b) => a.id == b.id,
+          items: controller.displayList.toList(),
+          // 3. 动画时长
+          insertDuration: Duration(milliseconds: 500),
+          removeDuration: Duration(milliseconds: 500),
+          updateDuration: Duration(milliseconds: 500),
+          itemBuilder: (context, animation, entry, index) {
+            return SizeFadeTransition(
+              curve: Curves.ease,
+              animation: animation,
+              child: _buildSingleCard(entry,index == controller.displayList.toList().length-1),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSingleCard(PasswordEntry entry, bool lastMargin) {
+    return Obx(
+      () =>
+        GestureDetector(
+          // 长按开始
+          onLongPressStart: (_) => controller.onLongPressStart(entry),
+          // 长按结束（手指抬起）
+          onLongPressEnd: (_) => controller.onLongPressEnd(),
+          child: Container(
+            key: ValueKey(entry.id),
+            margin: lastMargin ? EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 110) : EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: controller.longPressId == entry.id && controller.isLongPressBorderChanged
+                    ? colorPrimary
+                    : colorInputBorder,
+                width: 4,
+              ),
+              color: (controller.copiedId == entry.id) || (controller.longPressId == entry.id && controller.isLongPressBorderChanged)
+                  ? colorPrimary
+                  : Colors.transparent,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(10),
+                  width: 64,
+                  height: 64,
+                  // 注意：这里用 ShapeDecoration
+                  decoration: ShapeDecoration(
+                    color: (controller.copiedId == entry.id) || (controller.longPressId == entry.id && controller.isLongPressBorderChanged) ? colorWhite : colorDark,
+                    // 使用 ContinuousRectangleBorder
+                    shape: ContinuousRectangleBorder(
+                      // 注意：这里的数值需要比标准圆角大一些才能达到类似的视觉大小
+                      // 比如标准圆角用 16，这里可能需要用 32 左右
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      entry.title.substring(0, 1),
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: (controller.copiedId == entry.id) || (controller.longPressId == entry.id && controller.isLongPressBorderChanged)
+                            ? colorPrimary
+                            : colorWhite,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    controller.copiedId == entry.id ? "已复制！" : entry.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: (controller.copiedId == entry.id) || (controller.longPressId == entry.id && controller.isLongPressBorderChanged)
+                          ? colorWhite
+                          : colorDark,
+                    ),
+                  ),
+                ),
+                if (controller.copiedId != entry.id)
+                  GestureDetector(
+                    onLongPressStart: (_){
+                      //阻止复制按钮触发长按事件，长按事件不会冒泡到父组件
+                    },
+                    onTap: () {
+                      controller.onCopy(entry);
+                      SnackBarHelper.showSnackbar('密码已复制', '现在可以去粘贴你的密码啦', true);
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Image.asset(
+                          "assets/images/copy.png",
+                          width: 24,
+                          height: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(title: Text("密码簿")),
       body: Container(
@@ -65,8 +183,7 @@ class Home extends StatelessWidget {
                             // 去除长按背景高亮
                             hoverColor: Colors.transparent,
                             // (可选) 去除鼠标悬停颜色
-                            onPressed:
-                              controller.onClearSearchText,
+                            onPressed: controller.onClearSearchText,
                             icon: Image.asset(
                               "assets/images/back.png",
                               width: 24,
@@ -120,78 +237,7 @@ class Home extends StatelessWidget {
               }),
             ),
             SizedBox(height: 20),
-            Obx(
-              () => Expanded(
-                child: ListView.builder(
-                  itemCount: controller.displayList.length,
-                  itemBuilder: (context, index) {
-                    final entry = controller.displayList[index];
-                    return Container(
-                      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: colorInputBorder, width: 4),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.all(10),
-                            width: 64,
-                            height: 64,
-                            // 注意：这里用 ShapeDecoration
-                            decoration: ShapeDecoration(
-                              color: colorDark,
-                              // 使用 ContinuousRectangleBorder
-                              shape: ContinuousRectangleBorder(
-                                // 注意：这里的数值需要比标准圆角大一些才能达到类似的视觉大小
-                                // 比如标准圆角用 16，这里可能需要用 32 左右
-                                borderRadius: BorderRadius.circular(32),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                entry.title.substring(0, 1),
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: colorWhite,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              entry.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w900,
-                                color: colorDark,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: (){
-                                  Clipboard.setData(ClipboardData(text: entry.encryptedPassword));
-                                  controller.updateUsedCountAndLastUsedTime(entry);
-                                  SnackBarHelper.showSnackbar('密码已复制', '现在可以去粘贴你的密码啦', true);
-                                },
-                              child: Padding(padding: EdgeInsets.all(10), child: Image.asset("assets/images/copy.png", width: 24,height: 24,))
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            SizedBox(height: 110,)
+            _buildCards(),
           ],
         ),
       ),

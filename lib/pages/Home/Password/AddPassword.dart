@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:password_book_flutter/pages/Home/AddPassword/AddPasswordController.dart';
-import 'package:password_book_flutter/pages/Home/HomeController.dart';
+import 'package:password_book_flutter/entity/PasswordEntry.dart';
+import 'package:password_book_flutter/pages/Home/Password/PasswordInfoController.dart';
 
 import '../../ui/colors.dart';
 
-class Addpassword extends StatelessWidget {
+class Addpassword extends StatefulWidget {
   Addpassword({super.key});
 
+  @override
+  State<Addpassword> createState() => _AddpasswordState();
+}
 
+class _AddpasswordState extends State<Addpassword> {
+  late PasswordInfocontroller controller;
+  PasswordEntry? entry; // 存储传入的参数
+  bool isPressConfirm = false;
 
-  Addpasswordcontroller controller = Get.put(Addpasswordcontroller());
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(PasswordInfocontroller());
+    
+    // 获取传入的参数
+    entry = Get.arguments;
+    
+    // 初始化表单数据
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.initializeForm(entry);
+    });
+  }
 
 
   Widget getInput(BuildContext context, String title, bool required, TextEditingController TextController){
@@ -33,15 +52,15 @@ class Addpassword extends StatelessWidget {
             width: MediaQuery.of(context).size.width * 0.9,
             child: TextFormField(
               // Form 4. 配置验证逻辑
-              validator: (value) {
-                if(!required){
-                  return null;
-                }
-                if (value == null || value.isEmpty) {
-                  return "${title}不能为空"; // 返回错误提示文字
-                }
-                return null; // 返回 null 代表验证通过
-              },
+            validator: (value) {
+              if(!required){
+                return null;
+              }
+              if (value == null || value.trim().isEmpty) {
+                return "${title}不能为空"; // 返回错误提示文字
+              }
+              return null; // 返回 null 代表验证通过
+            },
               controller: TextController,
               cursorColor: Colors.black,
               decoration: InputDecoration(
@@ -118,15 +137,15 @@ class Addpassword extends StatelessWidget {
               minLines: 2,
               maxLines: 2,
               // Form 4. 配置验证逻辑
-              validator: (value) {
-                if(!required){
-                  return null;
-                }
-                if (value == null || value.isEmpty) {
-                  return "${title}不能为空"; // 返回错误提示文字
-                }
-                return null; // 返回 null 代表验证通过
-              },
+            validator: (value) {
+              if(!required){
+                return null;
+              }
+              if (value == null || value.trim().isEmpty) {
+                return "${title}不能为空"; // 返回错误提示文字
+              }
+              return null; // 返回 null 代表验证通过
+            },
               controller: TextController,
               cursorColor: Colors.black,
               decoration: InputDecoration(
@@ -201,10 +220,10 @@ class Addpassword extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         width: MediaQuery.of(context).size.width * 0.9,
                         height: MediaQuery.of(context).size.height * 0.15,
-                        child: Text(
-                          "添加密码",
+                        child: Obx(() => Text(
+                          controller.isUpdateMode ? "更新密码" : "添加密码",
                           style: TextStyle(fontSize: 64, color: colorDark),
-                        ),
+                        )),
                       ),
                     getInput(context, "标题", true, controller.titleController),
                     getInput(context, "用户名", true, controller.usernameController),
@@ -213,7 +232,7 @@ class Addpassword extends StatelessWidget {
                     getNoteInput(context, '备注', false, controller.noteController),
                     GestureDetector(
                       onTap: (){
-
+                        controller.onToGeneratePage();
                       },
                       child: Align(
                           alignment: Alignment.centerRight,
@@ -235,9 +254,25 @@ class Addpassword extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 15,),
-                    GestureDetector(
+                    Obx(() => GestureDetector(
+                      onTapDown: (_){
+                        isPressConfirm = true;
+                        setState(() {});
+                      },
+                      onTapUp: (_){
+                        isPressConfirm = false;
+                        setState(() {});
+                      },
+                      onTapCancel: (){
+                        isPressConfirm = false;
+                        setState(() {});
+                      },
                       onTap: (){
-                        controller.onSubmit();
+                        if (controller.isUpdateMode) {
+                          controller.onUpdate(entry!);
+                        } else {
+                          controller.onSubmit();
+                        }
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -245,14 +280,15 @@ class Addpassword extends StatelessWidget {
                         height: 50,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: colorPrimary,
+                          color: isPressConfirm ? colorWhite : colorPrimary,
+                          border: Border.all(color: colorPrimary, width: 4)
                         ),
                         child: Text(
-                          "确    定",
-                          style: TextStyle(color: colorWhite, fontSize: 25),
+                          controller.isUpdateMode ? "更    新" : "确    定",
+                          style: TextStyle(color: isPressConfirm? colorPrimary : colorWhite, fontSize: 25),
                         ),
                       ),
-                    ),
+                    )),
 
                   ],
                 ),

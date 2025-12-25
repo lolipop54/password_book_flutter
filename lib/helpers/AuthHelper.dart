@@ -8,7 +8,8 @@ class AuthHelper{
   static final instance = AuthHelper._internal();
   factory AuthHelper() => instance;
 
-  User? currentUser = null;
+  User? _currentUser;
+  User? get currentUser => _currentUser;
 
   Future<myResponse> registerSingleUser(String username, String password) async{
     try{
@@ -21,7 +22,7 @@ class AuthHelper{
       //生成盐值
       String salt = EncryptionHelper.generateSalt();
 
-      //密码用盐值+多次哈希加密
+      //密码用盐值+argon2id哈希加密
       String passwordHash = await EncryptionHelper.hashPassword(password, salt);
 
       User newUser = User(
@@ -55,12 +56,17 @@ class AuthHelper{
       bool success = await EncryptionHelper.verifyPassword(
           password, user.salt, user.passwordHash);
 
-      if (success) {
-        currentUser = user;
-        return myResponse(success: true, message: user.username);
-      } else {
+      if (!success) {
         return myResponse(success: false, message: "密码错误");
       }
+
+      //生成加密密钥
+      String secretKey = await EncryptionHelper().deriveSecretKey(password, user.salt);
+      EncryptionHelper().setSerectKey(secretKey);
+
+      _currentUser = user;
+      return myResponse(success: true, message: user.username);
+
     }catch(e, stackTrace) {
       print(e);
       print(stackTrace);

@@ -1,12 +1,75 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:crypto/crypto.dart';
+import 'package:crypto/crypto.dart' hide Hmac;
 import 'package:cryptography_plus/cryptography_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:password_book_flutter/entity/myResponse.dart';
 
 
 class EncryptionHelper{
+  static final EncryptionHelper _instance = EncryptionHelper._internal();
+  factory EncryptionHelper() => _instance;
+  EncryptionHelper._internal();
+
+  Pbkdf2 pbkdf2 = Pbkdf2(
+    macAlgorithm: Hmac.sha256(),
+    iterations: 10000,     // 迭代次数，越高越安全但也越慢，推荐 10万+
+    bits: 256,             // 生成 256 位密钥 (对应 AesGcm.with256bits)
+  );
+  AesGcm AES256 = AesGcm.with256bits();
+
+  String _secretKey = '';
+
+  void setSerectKey(String secretKey){
+    _secretKey = secretKey;
+  }
+
+  Future<String> deriveSecretKey(String password, String salt) async{
+    final saltBytes = base64Decode(salt);
+
+    // 利用 主密码 + 盐 派生真正的 AES 密钥
+    final SecretKey secretKey = await pbkdf2.deriveKeyFromPassword(
+      password: password,
+      nonce: saltBytes, // PBKDF2 算法中，Salt 作为 nonce 参数传入
+    );
+    List<int> secretKeyBytes = await secretKey.extractBytes();
+
+    return base64Encode(secretKeyBytes);
+  }
+
+  Future<SecretBox> encryptPassword(String password) async{
+    // 每次加密都需要一个新的、随机的 Nonce
+    final nonce = AES256.newNonce();
+
+    final passwordBytes = utf8.encode(password);
+
+    SecretBox secretBox = await AES256.encrypt(
+      passwordBytes,
+      secretKey: SecretKey(base64Decode(_secretKey)),
+      nonce: nonce,
+    );
+
+    return secretBox;
+  }
+
+  Future<String> decryptPassword(String encryptedPassword, String nonce, String mac) async{
+    // --- 解密过程 ---
+    try {
+      final secretBox = SecretBox(base64Decode(encryptedPassword),nonce: base64Decode(nonce), mac: Mac(base64Decode(mac)));
+
+      final decryptedPassword = await AES256.decrypt(
+        secretBox,
+        secretKey: SecretKey(base64Decode(_secretKey)),
+      );
+
+      return utf8.decode(decryptedPassword);
+
+    } catch (e) {
+      print("解密失败: $e");
+      return '';
+    }
+  }
+
   // 生成随机盐
   static String generateSalt([int length = 32]) {
     final random = Random.secure();
@@ -71,4 +134,6 @@ class EncryptionHelper{
     }
     return result == 0;
   }
+
+
 }

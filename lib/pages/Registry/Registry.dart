@@ -25,6 +25,8 @@ class _RegistryState extends State<Registry> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool isPressRestry = false;
+
   @override
   void initState() {
     super.initState();
@@ -361,6 +363,18 @@ class _RegistryState extends State<Registry> {
 
                         SizedBox(height: 40),
                         GestureDetector(
+                          onTapDown: (_){
+                            isPressRestry = true;
+                            setState(() {});
+                          },
+                          onTapUp: (_){
+                            isPressRestry = false;
+                            setState(() {});
+                          },
+                          onTapCancel: (){
+                            isPressRestry = false;
+                            setState(() {});
+                          },
                           onTap: _onRegister,
                           child: Container(
                             alignment: Alignment.center,
@@ -368,11 +382,12 @@ class _RegistryState extends State<Registry> {
                             height: 50,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: colorPrimary,
+                              color: isPressRestry ? colorWhite : colorPrimary,
+                              border: Border.all(color: colorPrimary, width: 4),
                             ),
                             child: Text(
                               "注    册",
-                              style: TextStyle(color: colorWhite, fontSize: 25),
+                              style: TextStyle(color: isPressRestry ? colorPrimary : colorWhite, fontSize: 25),
                             ),
                           ),
                         ),

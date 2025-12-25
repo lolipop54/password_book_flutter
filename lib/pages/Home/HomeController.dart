@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../entity/PasswordEntry.dart';
 import '../../entity/user.dart';
 import '../../helpers/DatabaseHelper.dart';
+import '../../helpers/EncryptionHelper.dart';
 
 
 class Homecontroller extends GetxController {
@@ -30,6 +33,27 @@ class Homecontroller extends GetxController {
   int get selectId => _selectId.value;
   set selectId(int value) => _selectId.value = value;
 
+  // 是否点击了复制按钮
+  final _copiedId = (-1).obs;
+  int get copiedId => _copiedId.value;
+  set copiedId(int value) => _copiedId.value = value;
+
+  // 定义一个 Timer 变量，用于管理延时任务
+  Timer? _resetTimer;
+  
+  // 长按相关状态
+  final _longPressId = (-1).obs;
+  int get longPressId => _longPressId.value;
+  set longPressId(int value) => _longPressId.value = value;
+  
+  // 长按定时器
+  Timer? _longPressTimer;
+  
+  // 长按是否已触发边框变色
+  final _isLongPressBorderChanged = false.obs;
+  bool get isLongPressBorderChanged => _isLongPressBorderChanged.value;
+  set isLongPressBorderChanged(bool value) => _isLongPressBorderChanged.value = value;
+
   // ========================== 2. 初始化与监听 ==========================
 
   @override
@@ -54,6 +78,8 @@ class Homecontroller extends GetxController {
   void onClose() {
     focusNode.dispose();
     searchController.dispose();
+    _resetTimer?.cancel();
+    _longPressTimer?.cancel();
     super.onClose();
   }
 
@@ -141,7 +167,7 @@ class Homecontroller extends GetxController {
   // 【修复Bug】更新使用次数
   // 注意：这里必须接收具体的 item 对象，不能只接收 index
   // 因为 displayList 的 index 和 _allSourceList 的 index 是不一样的！
-  void updateUsedCountAndLastUsedTime(PasswordEntry item) async {
+  void updateUsedCountAndLastUsedTime(PasswordEntry item, [bool isFresh = true]) async {
     DateTime lastUsedTime = DateTime.now();
     int usedCount = (item.usedCount ?? 0) + 1;
 
@@ -153,6 +179,69 @@ class Homecontroller extends GetxController {
     await Databasehelper().updatePasswordEntry(newItem);
 
     // 更新完数据库后，重新拉取数据，界面会自动刷新
-    getAllPasswordEntries();
+    if(isFresh){
+      getAllPasswordEntries();
+    }
+
+  }
+
+  void onCopy(PasswordEntry entry) async{
+    final decryptPassword = await EncryptionHelper().decryptPassword(entry.encryptedPassword, entry.nonce,entry.mac);
+    Clipboard.setData(ClipboardData(text: decryptPassword));
+    updateUsedCountAndLastUsedTime(entry, false);
+    _copiedId.value = entry.id!;
+    // 4. 启动 1 秒后复位的定时器
+    _startResetTimer();
+  }
+
+  void _startResetTimer() {
+    // 重要：每次点击先取消上一次的定时器
+    // 这是为了防止快速点击时，旧的定时器把你新设置的状态给清空了
+    _resetTimer?.cancel();
+      // 1 秒后，清空 ID，UI 就会自动复原
+    _resetTimer = Timer(Duration(milliseconds: 1500), (){
+      _copiedId.value = -1;
+
+      // 2. 动画结束了，这时候再去刷新列表数据
+      // 这样用户既看到了变色，列表排序更新也不会显得突兀
+      getAllPasswordEntries();
+    });
+
+  }
+  
+  // 长按开始
+  void onLongPressStart(PasswordEntry entry) {
+    // 取消之前的定时器
+    _longPressTimer?.cancel();
+    
+    // 设置当前长按的ID
+    longPressId = entry.id!;
+    isLongPressBorderChanged = true;
+    
+    // 0.3秒后跳转到详情页
+    _longPressTimer = Timer(Duration(milliseconds: 300), () async{
+      if (longPressId == entry.id) {
+        final decryptPassword = await EncryptionHelper().decryptPassword(entry.encryptedPassword, entry.nonce,entry.mac);
+        final entryCopy = entry.copyWith(encryptedPassword: decryptPassword);
+        Get.toNamed('/details', arguments: entryCopy);
+        _longPressTimer = Timer(Duration(milliseconds: 300), () {
+          resetLongPressState();
+        });
+      }
+    });
+  }
+  
+  // 长按结束（手指抬起）
+  void onLongPressEnd() {
+    resetLongPressState();
+    // 取消定时器，但保持边框颜色状态
+    _longPressTimer?.cancel();
+  }
+  
+  // 重置长按状态
+  void resetLongPressState() {
+    _longPressTimer?.cancel();
+    longPressId = -1;
+    isLongPressBorderChanged = false;
   }
 }

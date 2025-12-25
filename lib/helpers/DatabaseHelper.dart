@@ -49,6 +49,8 @@ class Databasehelper {
         updated_at TEXT,
         last_used_time TEXT,
         used_count INTEGER,
+        mac TEXT NOT NULL,
+        nonce TEXT NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
@@ -105,6 +107,15 @@ class Databasehelper {
     final db = await database;
     var list = await db.query('password_entries', where: 'id = ?', whereArgs: [id]);
     return list.map((e) => PasswordEntry.fromMap(e)).toList();
+  }
+  
+  Future<PasswordEntry?> getPasswordEntryById(int id) async {
+    final db = await database;
+    var list = await db.query('password_entries', where: 'id = ?', whereArgs: [id]);
+    if (list.isNotEmpty) {
+      return PasswordEntry.fromMap(list.first);
+    }
+    return null;
   }
 
 
