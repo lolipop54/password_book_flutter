@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +32,26 @@ class PasswordInfocontroller extends GetxController{
   bool get isPressConfirm => _isPressConfirm.value;
   set isPressConfirm(bool value) => _isPressConfirm.value = value;
 
+  final RxBool _isPressRamdom = false.obs;
+  bool get isPressRamdom => _isPressRamdom.value;
+  set isPressRamdom(bool value) => _isPressRamdom.value = value;
+
+  final RxBool _isPressCopy = false.obs;
+  bool get isPressCopy => _isPressCopy.value;
+  set isPressCopy(bool value) => _isPressCopy.value = value;
+
+  final _selectedLength = 4.obs;
+  int get selectedLength => _selectedLength.value;
+  set selectedLength(int value) => _selectedLength.value = value;
+
+  final _selectedSymbols = '包含'.obs;
+  String get selectedSymbols => _selectedSymbols.value;
+  set selectedSymbols(String value) => _selectedSymbols.value = value;
+
+  final _generatePassword = ''.obs;
+  String get generatePassword => _generatePassword.value;
+  set generatePassword(String value) => _generatePassword.value = value;
+
   // 是否是更新模式
   final RxBool _isUpdateMode = false.obs;
   bool get isUpdateMode => _isUpdateMode.value;
@@ -40,6 +61,12 @@ class PasswordInfocontroller extends GetxController{
   final RxInt _updateEntryId = (-1).obs;
   int get updateEntryId => _updateEntryId.value;
   set updateEntryId(int value) => _updateEntryId.value = value;
+
+  // 字符集定义
+  static const String _uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  static const String _lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+  static const String _numberChars = '0123456789';
+  static const String _specialChars = '!@#\$%^&*()_+-=[]{}|;:,.<>?';
 
   GlobalKey<FormState> keyForm = GlobalKey<FormState>();
 
@@ -142,7 +169,7 @@ class PasswordInfocontroller extends GetxController{
   }
 
   void onToGeneratePage(){
-
+    Get.toNamed('/generate');
   }
 
   void toggleShowPassword(){
@@ -213,6 +240,59 @@ class PasswordInfocontroller extends GetxController{
 
   void onCopy(String password){
     Clipboard.setData(ClipboardData(text: password));
+    SnackBarHelper.showSnackbar('复制成功', '现在可以去粘贴你的密码啦', true);
+  }
+
+  void onGeneratePassword(){
+    final random = Random.secure();
+
+    String charset = '';
+
+    // 构建字符集
+    charset += _uppercaseChars;
+    charset += _lowercaseChars;
+    charset += _numberChars;
+    if (selectedSymbols == '包含') charset += _specialChars;
+
+    // 生成密码
+    String password = '';
+    final int length = selectedLength;
+
+    // 确保至少包含一个来自每个选中字符集的字符
+    List<String> requiredChars = [];
+
+    String chars = _uppercaseChars;
+    if (chars.isNotEmpty) {
+      requiredChars.add(chars[random.nextInt(chars.length)]);
+    }
+    chars = _lowercaseChars;
+    if (chars.isNotEmpty) {
+      requiredChars.add(chars[random.nextInt(chars.length)]);
+    }
+    chars = _numberChars;
+    if (chars.isNotEmpty) {
+      requiredChars.add(chars[random.nextInt(chars.length)]);
+    }
+    if(selectedSymbols == '包含'){
+      chars = _specialChars;
+      if (chars.isNotEmpty) {
+        requiredChars.add(chars[random.nextInt(chars.length)]);
+      }
+    }
+    // 添加必需字符
+    password += requiredChars.join('');
+
+    // 填充剩余长度
+    for(int i = requiredChars.length;i < length; i++){
+      password += charset[random.nextInt(charset.length)];
+    }
+
+    // 打乱密码字符顺序
+    List<String> passwordList = password.split('');
+    passwordList.shuffle(random);
+    password = passwordList.join('');
+
+    generatePassword = password;
   }
 
   Future<void> onDeletePassword(int id) async {

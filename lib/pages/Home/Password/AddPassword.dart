@@ -16,6 +16,7 @@ class _AddpasswordState extends State<Addpassword> {
   late PasswordInfocontroller controller;
   PasswordEntry? entry; // 存储传入的参数
   bool isPressConfirm = false;
+  bool isPressGenerate = false;
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _AddpasswordState extends State<Addpassword> {
             required ? '${title}*': title,
             style: TextStyle(
               fontSize: 15,
-              color: colorDark,
+              color: Theme.of(context).colorScheme.onBackground,
               height: 1.1,
             ),
           ),
@@ -78,35 +79,35 @@ class _AddpasswordState extends State<Addpassword> {
                   // 可选：设置圆角
                   borderSide: BorderSide(
                     width: 2.0, // 宽 2
-                    color: colorInputBorder,
+                    color: Theme.of(context).inputDecorationTheme.enabledBorder!.borderSide.color,
                   ),
                 ),
                 // 2. 获得焦点时的边框 (点击输入时)
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     width: 2.0,
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 // 3. 错误状态下的边框
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     width: 2.0,
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 // 4. 获得焦点时的错误边框
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     width: 2.0,
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 hintText: "请输入${title}",
-                hintStyle: TextStyle(color: colorGray),
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
               ),
             ),
           ),
@@ -125,7 +126,7 @@ class _AddpasswordState extends State<Addpassword> {
             required ? '${title}*': title,
             style: TextStyle(
               fontSize: 15,
-              color: colorDark,
+              color: Theme.of(context).colorScheme.onBackground,
               height: 1.1,
             ),
           ),
@@ -163,35 +164,35 @@ class _AddpasswordState extends State<Addpassword> {
                   // 可选：设置圆角
                   borderSide: BorderSide(
                     width: 2.0, // 宽 2
-                    color: colorInputBorder,
+                    color: Theme.of(context).inputDecorationTheme.enabledBorder!.borderSide.color,
                   ),
                 ),
                 // 2. 获得焦点时的边框 (点击输入时)
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     width: 2.0,
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 // 3. 错误状态下的边框
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     width: 2.0,
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 // 4. 获得焦点时的错误边框
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     width: 2.0,
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 hintText: "请输入${title}",
-                hintStyle: TextStyle(color: colorGray),
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
               ),
             ),
           ),
@@ -207,7 +208,7 @@ class _AddpasswordState extends State<Addpassword> {
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: colorWhite,
+          color: Theme.of(context).colorScheme.surface,
           child: SingleChildScrollView(
             child: Form(
               key: controller.keyForm,
@@ -222,7 +223,7 @@ class _AddpasswordState extends State<Addpassword> {
                         height: MediaQuery.of(context).size.height * 0.15,
                         child: Obx(() => Text(
                           controller.isUpdateMode ? "更新密码" : "添加密码",
-                          style: TextStyle(fontSize: 64, color: colorDark),
+                          style: TextStyle(fontSize: 64, color: Theme.of(context).colorScheme.onBackground),
                         )),
                       ),
                     getInput(context, "标题", true, controller.titleController),
@@ -231,6 +232,18 @@ class _AddpasswordState extends State<Addpassword> {
                     getInput(context, "网站/App名", false, controller.websiteController),
                     getNoteInput(context, '备注', false, controller.noteController),
                     GestureDetector(
+                      onTapDown: (_){
+                        isPressGenerate = true;
+                        setState(() {});
+                      },
+                      onTapUp: (_){
+                        isPressGenerate = false;
+                        setState(() {});
+                      },
+                      onTapCancel: (){
+                        isPressGenerate = false;
+                        setState(() {});
+                      },
                       onTap: (){
                         controller.onToGeneratePage();
                       },
@@ -243,12 +256,12 @@ class _AddpasswordState extends State<Addpassword> {
                             height: 48,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: colorWhite,
-                              border: Border.all(color: colorPrimary, width: 4),
+                              color: isPressGenerate ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+                              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 4),
                             ),
                             child: Text(
                               "生成密码",
-                              style: TextStyle(color: colorPrimary, fontSize: 22),
+                              style: TextStyle(color: isPressGenerate ? Theme.of(context).colorScheme.onError : Theme.of(context).colorScheme.primary, fontSize: 22),
                             ),
                           ),
                       ),
@@ -280,12 +293,12 @@ class _AddpasswordState extends State<Addpassword> {
                         height: 50,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: isPressConfirm ? colorWhite : colorPrimary,
-                          border: Border.all(color: colorPrimary, width: 4)
+                          color: isPressConfirm ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.primary,
+                          border: Border.all(color: Theme.of(context).colorScheme.primary, width: 4)
                         ),
                         child: Text(
                           controller.isUpdateMode ? "更    新" : "确    定",
-                          style: TextStyle(color: isPressConfirm? colorPrimary : colorWhite, fontSize: 25),
+                          style: TextStyle(color: isPressConfirm? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onError, fontSize: 25),
                         ),
                       ),
                     )),

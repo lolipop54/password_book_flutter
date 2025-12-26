@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:password_book_flutter/helpers/DoubleBackToExitWrapper.dart';
 import 'package:password_book_flutter/pages/ui/colors.dart';
 
 import '../Home/Home.dart';
@@ -20,7 +21,7 @@ class _MainviewState extends State<Mainview> {
 
   final List<Widget> pages = [Home(), Settings()];
 
-  Widget getHomeIcon() {
+  Widget getHomeIcon(BuildContext context) {
     return Obx(
       () => GestureDetector(
         onTap: () {
@@ -29,7 +30,7 @@ class _MainviewState extends State<Mainview> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.home, color: colorDark, size: buttonSize),
+            Icon(Icons.home, color: Theme.of(context).colorScheme.secondary, size: buttonSize),
             Visibility(
               maintainSize: true,
               maintainAnimation: true,
@@ -39,7 +40,7 @@ class _MainviewState extends State<Mainview> {
                 width: 10,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: colorDark,
+                  color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -50,7 +51,7 @@ class _MainviewState extends State<Mainview> {
     );
   }
 
-  Widget getSettingsIcon() {
+  Widget getSettingsIcon(BuildContext context) {
     return Obx(
       () => GestureDetector(
         onTap: () {
@@ -59,7 +60,7 @@ class _MainviewState extends State<Mainview> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.settings, color: colorDark, size: buttonSize),
+            Icon(Icons.settings, color: Theme.of(context).colorScheme.secondary, size: buttonSize),
             Visibility(
               maintainSize: true,
               maintainAnimation: true,
@@ -69,7 +70,7 @@ class _MainviewState extends State<Mainview> {
                 width: 10,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: colorDark,
+                  color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -84,60 +85,62 @@ class _MainviewState extends State<Mainview> {
   Widget build(BuildContext context) {
     final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Obx(
-              () => IndexedStack(index: controller.currentTab, children: pages),
-            ),
-            if(!isKeyboardVisible) Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned(
-                  left: 20,
-                  right: 20,
-                  bottom: 20,
-                  child: Container(
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: colorInputBorder,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        getHomeIcon(),
-                        SizedBox(width: buttonSize),
-                        getSettingsIcon(),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 40,
-                  child: GestureDetector(
-                    onTap: (){
-                      Get.toNamed('/Password');
-                    },
+    return DoubleBackToExitWrapper(
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Obx(
+                () => IndexedStack(index: controller.currentTab, children: pages),
+              ),
+              if(!isKeyboardVisible) Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 20,
                     child: Container(
-                      width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(32),
+                        color: Theme.of(context).colorScheme.tertiary,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
-                        Icons.add,
-                        color: colorWhite,
-                        size: 32,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          getHomeIcon(context),
+                          SizedBox(width: buttonSize),
+                          getSettingsIcon(context),
+                        ],
                       ),
                     ),
                   ),
-                )
-              ],
-            ),
-          ],
+                  Positioned(
+                    bottom: 40,
+                    child: GestureDetector(
+                      onTap: (){
+                        Get.toNamed('/Password');
+                      },
+                      child: Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          color: colorWhite,
+                          size: 32,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

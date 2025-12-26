@@ -20,7 +20,7 @@ class Databasehelper {
 
   Future<dynamic> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'password_book.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -54,6 +54,31 @@ class Databasehelper {
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
+    // 通用设置表
+    await db.execute('''
+      CREATE TABLE common_settings(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT NOT NULL,
+        created_at TEXT,
+        updated_at TEXT
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // 从版本1升级到版本2：添加common_settings表
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE common_settings(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          key TEXT UNIQUE NOT NULL,
+          value TEXT NOT NULL,
+          created_at TEXT,
+          updated_at TEXT
+        )
+      ''');
+    }
   }
 
   //用户相关操作
@@ -141,5 +166,50 @@ class Databasehelper {
       where: 'id = ?',
       whereArgs: [entry.id],
     );
+  }
+
+  // 通用设置相关操作
+  Future<bool> getDarkMode() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.query(
+      'common_settings',
+      where: 'key = ?',
+      whereArgs: ['is_dark_mode'],
+    );
+    if (result.isNotEmpty) {
+      return result.first['value'] == '1';
+    }
+    return false;
+  }
+
+  Future<void> setDarkMode(bool isDarkMode) async {
+    final db = await database;
+    final now = DateTime.now().toIso8601String();
+    final List<Map<String, dynamic>> result = await db.query(
+      'common_settings',
+      where: 'key = ?',
+      whereArgs: ['is_dark_mode'],
+    );
+    if (result.isNotEmpty) {
+      await db.update(
+        'common_settings',
+        {
+          'value': isDarkMode ? '1' : '0',
+          'updated_at': now,
+        },
+        where: 'key = ?',
+        whereArgs: ['is_dark_mode'],
+      );
+    } else {
+      await db.insert(
+        'common_settings',
+        {
+          'key': 'is_dark_mode',
+          'value': isDarkMode ? '1' : '0',
+          'created_at': now,
+          'updated_at': now,
+        },
+      );
+    }
   }
 }

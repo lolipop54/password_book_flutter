@@ -73,4 +73,10 @@ class AuthHelper{
       return myResponse(success: false, message: e.toString());
     }
   }
+
+  // 登出方法，清除当前用户和加密密钥
+  void logout(){
+    _currentUser = null;
+    EncryptionHelper().setSerectKey('');
+  }
 }

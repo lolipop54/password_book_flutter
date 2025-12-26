@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _checkUsers() async {
-    // // 延迟一下显示启动画面
+    // 延迟一下显示启动画面
     await Future.delayed(const Duration(seconds: 1));
 
     bool hasUsers = await Databasehelper().hasUsers();
@@ -63,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         TextSpan(
                           text: "密码簿",
                           style: TextStyle(
-                            color: Color(0xff545974),
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 30,
                             fontWeight: FontWeight.bold
                           )
@@ -81,6 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
               "你的贴心密码管家",
               style: TextStyle(
                 fontSize: 12,
+                color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
           )

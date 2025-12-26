@@ -52,11 +52,11 @@ class _PasswordDetailsState extends State<PasswordDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/images/date.png', width: 24),
+          Image.asset('assets/images/date.png', width: 24, color: Theme.of(context).colorScheme.onSurface,),
           Text(
             "${datetime.day} ${convertMonth(datetime.month)} ${datetime.year}",
             style: TextStyle(
-              color: colorDark,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -77,11 +77,11 @@ class _PasswordDetailsState extends State<PasswordDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/images/link.png', width: 24),
+          Image.asset('assets/images/link.png', width: 24, color: Theme.of(context).colorScheme.onSurface,),
           Text(
             website,
             style: TextStyle(
-              color: colorDark,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -102,11 +102,11 @@ class _PasswordDetailsState extends State<PasswordDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/images/username.png', width: 24),
+          Image.asset('assets/images/username.png', width: 24, color: Theme.of(context).colorScheme.onSurface,),
           Text(
             username,
             style: TextStyle(
-              color: colorDark,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -129,14 +129,14 @@ class _PasswordDetailsState extends State<PasswordDetails> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset('assets/images/password.png', width: 24),
+                Image.asset('assets/images/password.png', width: 24, color: Theme.of(context).colorScheme.onSurface,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       controller.isShowPassword ? password : '********',
                       style: TextStyle(
-                        color: colorDark,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -154,8 +154,8 @@ class _PasswordDetailsState extends State<PasswordDetails> {
                         controller.toggleShowPassword();
                       },
                       icon: controller.isShowPassword
-                          ? Icon(Icons.visibility_off, color: colorPrimary)
-                          : Icon(Icons.visibility, color: colorPrimary),
+                          ? Icon(Icons.visibility_off, color: Theme.of(context).colorScheme.primary)
+                          : Icon(Icons.visibility, color: Theme.of(context).colorScheme.primary),
                     ),
                     SizedBox(width: 10),
                     IconButton(
@@ -189,11 +189,11 @@ class _PasswordDetailsState extends State<PasswordDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/images/edit.png', width: 24),
+          Image.asset('assets/images/edit.png', width: 24, color: Theme.of(context).colorScheme.onSurface,),
           Text(
             note,
             style: TextStyle(
-              color: colorDark,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -227,6 +227,7 @@ class _PasswordDetailsState extends State<PasswordDetails> {
                             textCancel: "取消",
                             confirmTextColor: colorWhite,
                             buttonColor: colorPrimary,
+                            cancelTextColor: Theme.of(context).colorScheme.onSurface,
                             onConfirm: () {
                               Get.back(); // 关闭对话框
                               controller.onDeletePassword(entry.id!);
@@ -243,12 +244,12 @@ class _PasswordDetailsState extends State<PasswordDetails> {
                           height: 48,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: controller.isPressDelete ? colorPrimary : colorWhite,
-                            border: Border.all(color: colorPrimary, width: 4),
+                            color: controller.isPressDelete ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+                            border: Border.all(color: Theme.of(context).colorScheme.primary, width: 4),
                           ),
                           child: Text(
                             "删   除",
-                            style: TextStyle(color: controller.isPressDelete ? colorWhite : colorPrimary, fontSize: 22),
+                            style: TextStyle(color: controller.isPressDelete ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.primary, fontSize: 22),
                           ),
                         ),
                       )),
@@ -286,22 +287,16 @@ class _PasswordDetailsState extends State<PasswordDetails> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.15,
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
                   child: Text(
                     entry.title,
-                    style: TextStyle(fontSize: 64, color: colorDark),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 48, color: Theme.of(context).colorScheme.onBackground),
                   ),
                 ),
+                SizedBox(height: 20),
                 _buildDateDetails(context, entry.updatedAt ?? entry.createdAt!),
                 if (entry.website != null && entry.website!.isNotEmpty)
                   _buildWebsiteDetails(context, entry.website!),

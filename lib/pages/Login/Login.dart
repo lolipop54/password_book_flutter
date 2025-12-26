@@ -4,6 +4,7 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:password_book_flutter/entity/myResponse.dart';
 import 'package:password_book_flutter/helpers/DatabaseHelper.dart';
 import 'package:password_book_flutter/helpers/AuthHelper.dart';
+import 'package:password_book_flutter/helpers/DoubleBackToExitWrapper.dart';
 
 import '../../helpers/SnackBarHelper.dart';
 import '../ui/colors.dart';
@@ -39,14 +40,15 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Container(
-            width: double.infinity,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
+    return DoubleBackToExitWrapper(
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: SafeArea(
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: Column(
+                children: [
                 Container(
                   // 设置了alignment，子组件的宽高设置才会生效
                   alignment: Alignment.center,
@@ -59,17 +61,17 @@ class _LoginState extends State<Login> {
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: Center(
                     child: Text.rich(
-                      TextSpan(
-                        text: "登录\n",
-                        style: TextStyle(fontSize: 64, color: colorDark),
-                        children: [
-                          TextSpan(
-                            text: "登录已有账号",
-                            style: TextStyle(fontSize: 15, color: colorGray),
-                          ),
-                        ],
-                      ),
+                    TextSpan(
+                      text: "登录\n",
+                      style: TextStyle(fontSize: 64, color: Theme.of(context).colorScheme.onBackground),
+                      children: [
+                        TextSpan(
+                          text: "登录已有账号",
+                          style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                        ),
+                      ],
                     ),
+                  ),
                   ),
                 ),
                 SizedBox(height: 30),
@@ -85,7 +87,7 @@ class _LoginState extends State<Login> {
                           "密码",
                           style: TextStyle(
                             fontSize: 15,
-                            color: colorDark,
+                            color: Theme.of(context).colorScheme.onBackground,
                             height: 1.1,
                           ),
                         ),
@@ -119,41 +121,41 @@ class _LoginState extends State<Login> {
                                 // 可选：设置圆角
                                 borderSide: BorderSide(
                                   width: 2.0, // 宽 2
-                                  color: colorInputBorder,
+                                  color: Theme.of(context).inputDecorationTheme.enabledBorder!.borderSide.color,
                                 ),
                               ),
                               // 2. 获得焦点时的边框 (点击输入时)
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10.0),
-                                borderSide: const BorderSide(
+                                borderSide: BorderSide(
                                   width: 2.0,
-                                  color: colorPrimary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                               // 3. 错误状态下的边框
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10.0),
-                                borderSide: const BorderSide(
+                                borderSide: BorderSide(
                                   width: 2.0,
-                                  color: colorPrimary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                               // 4. 获得焦点时的错误边框
                               focusedErrorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10.0),
-                                borderSide: const BorderSide(
+                                borderSide: BorderSide(
                                   width: 2.0,
-                                  color: colorPrimary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                               hintText: "请输入密码",
-                              hintStyle: TextStyle(color: colorGray),
+                              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscureText
                                       ? Icons.visibility
                                       : Icons.visibility_off,
-                                  color: colorGray,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -186,19 +188,19 @@ class _LoginState extends State<Login> {
                             height: 50,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: isPressLogin ? colorWhite : colorPrimary,
-                              border: Border.all(color: colorPrimary, width: 4)
+                              color: isPressLogin ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.primary,
+                              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 4)
                             ),
                             child: Text(
                               "登    录",
-                              style: TextStyle(color: isPressLogin ? colorPrimary : colorWhite, fontSize: 25),
+                              style: TextStyle(color: isPressLogin ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onError, fontSize: 25),
                             ),
                           ),
                         ),
                         SizedBox(height: 20),
                         Row(
                           children: [
-                            Text("未注册账号？", style: TextStyle(color: colorDark)),
+                            Text("未注册账号？", style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
                             TextButton(
                               style: TextButton.styleFrom(
                                 //1. 去除边距
@@ -213,7 +215,7 @@ class _LoginState extends State<Login> {
                               },
                               child: Text(
                                 "去注册",
-                                style: TextStyle(color: colorPrimary),
+                                style: TextStyle(color: Theme.of(context).colorScheme.primary),
                               ),
                             ),
                           ],
@@ -226,6 +228,7 @@ class _LoginState extends State<Login> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -219,18 +219,18 @@ class Homecontroller extends GetxController {
     isLongPressBorderChanged = true;
     
     // 0.3秒后跳转到详情页
-    _longPressTimer = Timer(Duration(milliseconds: 300), () async{
+    _longPressTimer = Timer(Duration(milliseconds: 250), () async{
       if (longPressId == entry.id) {
         final decryptPassword = await EncryptionHelper().decryptPassword(entry.encryptedPassword, entry.nonce,entry.mac);
         final entryCopy = entry.copyWith(encryptedPassword: decryptPassword);
         Get.toNamed('/details', arguments: entryCopy);
-        _longPressTimer = Timer(Duration(milliseconds: 300), () {
+        _longPressTimer = Timer(Duration(milliseconds: 250), () {
           resetLongPressState();
         });
       }
     });
   }
-  
+
   // 长按结束（手指抬起）
   void onLongPressEnd() {
     resetLongPressState();
