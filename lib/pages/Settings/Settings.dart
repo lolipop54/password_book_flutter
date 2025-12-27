@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:password_book_flutter/helpers/AuthHelper.dart';
 import 'package:password_book_flutter/pages/Settings/SettingsController.dart';
 import 'package:password_book_flutter/controllers/ThemeController.dart';
 
@@ -37,19 +38,50 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                 ),
+                Image.asset('assets/images/lock.png', width: 64),
+                Obx(() => Text(
+                  '用户：${AuthHelper().currentUser?.username ?? "User"}',
+                  style: TextStyle(fontSize: 16),
+                )),
                 _buildListItems(
                   Image.asset(
                     'assets/images/username.png',
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                     width: 36,
                   ),
                   '用户设置',
+                  onTap: (){
+                    Get.toNamed('/userSettings');
+                  }
                 ),
+                _buildListItems(
+                  Image.asset(
+                    'assets/images/password.png',
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 36,
+                  ),
+                  '修改主密码',
+                  onTap: (){
+                    Get.toNamed('/passwordModifier');
+                  }
+                ),
+                _buildListItems(
+                  Icon(
+                    Icons.backup_table_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 34,
+                  ),
+                  '备份/恢复数据',
+                  onTap: (){
+                    Get.toNamed('/backup');
+                  }
+                ),
+
                 ThemeController.to.themeMode == ThemeMode.dark
                     ? _buildListItems(
                         Image.asset(
                           'assets/images/Sun.png',
-                          color: colorPrimary,
+                          color: Theme.of(context).colorScheme.primary,
                           width: 36,
                         ),
                         '切换到白天模式',
@@ -60,7 +92,7 @@ class _SettingsState extends State<Settings> {
                     : _buildListItems(
                         Image.asset(
                           'assets/images/Moon.png',
-                          color: colorPrimary,
+                          color: Theme.of(context).colorScheme.primary,
                           width: 36,
                         ),
                         '切换到黑夜模式',
@@ -72,7 +104,7 @@ class _SettingsState extends State<Settings> {
                 _buildListItems(
                   Image.asset(
                     'assets/images/Logout.png',
-                    color: colorPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                     width: 36,
                   ),
                   '退出登录',
@@ -89,14 +121,26 @@ class _SettingsState extends State<Settings> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text('取消',style: TextStyle(color: Theme.of(context).colorScheme.onBackground),),
+                              child: Text(
+                                '取消',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onBackground,
+                                ),
+                              ),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop();
                                 controller.logout();
                               },
-                              child: Text('确定',style: TextStyle(color: Theme.of(context).colorScheme.primary),),
+                              child: Text(
+                                '确定',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
                             ),
                           ],
                         );
@@ -118,10 +162,16 @@ class _SettingsState extends State<Settings> {
       child: Row(
         children: [
           icon,
-          SizedBox(width: 10,),
+          SizedBox(width: 10),
           GestureDetector(
             onTap: onTap,
-            child: Text(text, style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontSize: 22)),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+                fontSize: 22,
+              ),
+            ),
           ),
         ],
       ),

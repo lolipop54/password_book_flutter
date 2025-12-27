@@ -20,7 +20,7 @@ class SnackBarHelper {
         // 外边距
         borderRadius: 10,
         // 圆角
-        duration: Duration(milliseconds: 1500),
+        duration: Duration(milliseconds: 1200),
         // 显示时长
         icon: success
             ? Image.asset("assets/images/success.png", width: 16,)

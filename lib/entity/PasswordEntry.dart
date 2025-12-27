@@ -13,7 +13,6 @@ class PasswordEntry {
   final String mac;
   final String nonce;
 
-
   PasswordEntry({
     this.id,
     required this.userId,

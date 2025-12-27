@@ -69,8 +69,9 @@ class Home extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color:
-                  controller.longPressId == entry.id &&
-                      controller.isLongPressBorderChanged
+              (controller.copiedId == entry.id) ||
+                  (controller.longPressId == entry.id &&
+                      controller.isLongPressBorderChanged)
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).inputDecorationTheme.enabledBorder!.borderSide.color,
               width: 4,

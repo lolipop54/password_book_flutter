@@ -66,7 +66,7 @@ class EncryptionHelper{
 
     } catch (e) {
       print("解密失败: $e");
-      return '';
+      throw Exception("解密失败: $e");
     }
   }
 

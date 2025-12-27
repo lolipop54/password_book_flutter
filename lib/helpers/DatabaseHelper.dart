@@ -87,6 +87,16 @@ class Databasehelper {
     return await db.insert('users', user);
   }
 
+  Future<int> updateUser(User entry) async {
+    final db = await database;
+    return await db.update(
+      'users',
+      entry.toMap(),
+      where: 'id = ?',
+      whereArgs: [entry.id],
+    );
+  }
+
   Future<bool> hasUsers() async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.query('users');
@@ -166,6 +176,21 @@ class Databasehelper {
       where: 'id = ?',
       whereArgs: [entry.id],
     );
+  }
+
+  // 批量更新密码条目，用于修改主密码后重新加密所有密码项
+  Future<void> batchUpdatePasswordEntries(List<PasswordEntry> entries) async {
+    final db = await database;
+    final batch = db.batch();
+    for (final entry in entries) {
+      batch.update(
+        'password_entries',
+        entry.toMap(),
+        where: 'id = ?',
+        whereArgs: [entry.id],
+      );
+    }
+    await batch.commit(noResult: true);
   }
 
   // 通用设置相关操作

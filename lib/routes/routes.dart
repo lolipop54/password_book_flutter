@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:password_book_flutter/pages/Settings/PasswordModifier.dart';
+import 'package:password_book_flutter/pages/Settings/UserSettings.dart';
 import 'package:password_book_flutter/pages/ui/colors.dart';
 
 import '../pages/Home/Generate/Generate.dart';
@@ -9,6 +11,7 @@ import '../pages/Home/Password/PasswordDetails.dart';
 import '../pages/Login/Login.dart';
 import '../pages/MainView/MainView.dart';
 import '../pages/Registry/Registry.dart';
+import '../pages/Settings/Backup.dart';
 import '../pages/SplashScreen/SplashScreen.dart';
 
 // 白天主题配置
@@ -143,6 +146,9 @@ List<GetPage> getRoutes(){
     GetPage(name: "/SplashScreen", page: () => SplashScreen()),
     GetPage(name: '/Password', page: () => Addpassword()),
     GetPage(name: '/details', page: () => PasswordDetails()),
-    GetPage(name: '/generate', page: () => Generate())
+    GetPage(name: '/generate', page: () => Generate()),
+    GetPage(name: '/userSettings', page: () => UserSettings()),
+    GetPage(name: '/passwordModifier', page: () => Passwordmodifier()),
+    GetPage(name: '/backup', page: () => Backup())
   ];
 }

@@ -191,7 +191,7 @@ class _RegistryState extends State<Registry> {
                           ),
       
                           Text(
-                            "密码",
+                            "主密码",
                             style: TextStyle(
                               fontSize: 15,
                               color: Theme.of(context).colorScheme.onBackground,
@@ -259,7 +259,7 @@ class _RegistryState extends State<Registry> {
                                     color: Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
-                                hintText: "请输入密码",
+                                hintText: "请输入主密码",
                                 hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -279,7 +279,7 @@ class _RegistryState extends State<Registry> {
                           ),
       
                           Text(
-                            "再次输入密码",
+                            "再次输入主密码",
                             style: TextStyle(
                               fontSize: 15,
                               color: Theme.of(context).colorScheme.onBackground,
@@ -342,7 +342,7 @@ class _RegistryState extends State<Registry> {
                                     color: Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
-                                hintText: "请再次输入密码",
+                                hintText: "请再次输入主密码",
                                 hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                                 suffixIcon: IconButton(
                                   icon: Icon(

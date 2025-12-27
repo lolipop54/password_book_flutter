@@ -1,15 +1,15 @@
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:password_book_flutter/entity/myResponse.dart';
 import './EncryptionHelper.dart';
 import '../entity/user.dart';
 import 'DatabaseHelper.dart';
-
 class AuthHelper{
   AuthHelper._internal();
   static final instance = AuthHelper._internal();
   factory AuthHelper() => instance;
 
-  User? _currentUser;
-  User? get currentUser => _currentUser;
+  final Rx<User?> _currentUser = Rx<User?>(null);
+  User? get currentUser => _currentUser.value;
 
   Future<myResponse> registerSingleUser(String username, String password) async{
     try{
@@ -40,8 +40,6 @@ class AuthHelper{
         return myResponse(success: false, message: "注册失败");
       }
     }catch(e, stackTrace){
-      print(e);
-      print(stackTrace);
       return myResponse(success: false, message: e.toString());
     }
   }
@@ -64,7 +62,7 @@ class AuthHelper{
       String secretKey = await EncryptionHelper().deriveSecretKey(password, user.salt);
       EncryptionHelper().setSerectKey(secretKey);
 
-      _currentUser = user;
+      _currentUser.value = user;
       return myResponse(success: true, message: user.username);
 
     }catch(e, stackTrace) {
@@ -74,9 +72,14 @@ class AuthHelper{
     }
   }
 
+  void updateCurrentUser() async {
+    User? user = await Databasehelper().getFirstUser();
+    _currentUser.value = user;
+  }
+
   // 登出方法，清除当前用户和加密密钥
   void logout(){
-    _currentUser = null;
+    _currentUser.value = null;
     EncryptionHelper().setSerectKey('');
   }
 }
