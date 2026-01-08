@@ -1,16 +1,13 @@
-# password_book_flutter
+### 罐头密码簿
 
-A new Flutter project.
+- flutter 3.38.3
+- sqflite 2.3.0
+- path 1.8.3
+- get 4.7.3
+- cryptography_plus 2.7.0
+- animated_list_plus 0.5.0
+- dropdown_button2 2.3.9
 
-## Getting Started
+密码簿采用Argon2加密主密码，AES-256加密密码条目，支持密码条目增删改查、密码生成、备份/恢复、显示模式切换等功能。
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![罐头密码簿](罐头密码簿.jpg)
