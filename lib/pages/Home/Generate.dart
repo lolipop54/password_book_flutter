@@ -2,8 +2,8 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../ui/colors.dart';
-import '../Password/PasswordInfoController.dart';
+import '../ui/colors.dart';
+import 'package:password_book_flutter/controllers/PasswordInfoController.dart';
 
 class Generate extends StatefulWidget {
   const Generate({super.key});

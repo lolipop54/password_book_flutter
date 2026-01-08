@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../../entity/PasswordEntry.dart';
-import '../../entity/user.dart';
-import '../../helpers/DatabaseHelper.dart';
-import '../../helpers/EncryptionHelper.dart';
+import '../entity/PasswordEntry.dart';
+import '../entity/user.dart';
+import '../helpers/DatabaseHelper.dart';
+import '../helpers/EncryptionHelper.dart';
 
 
-class Homecontroller extends GetxController {
+class HomeController extends GetxController {
   // ========================== 1. 基础状态 ==========================
 
-  // 【核心数据源】只负责存储从数据库读出来的所有数据，不做任何删除/过滤
+  // 从数据库读出来的所有数据，不做任何删除/过滤
   final RxList<PasswordEntry> _allSourceList = <PasswordEntry>[].obs;
 
-  // 【UI展示数据】最终给页面 ListView 使用的列表
+  // 最终给页面 ListView 使用的列表
   final RxList<PasswordEntry> displayList = <PasswordEntry>[].obs;
 
   // 搜索框控制器 & 状态
@@ -65,7 +65,7 @@ class Homecontroller extends GetxController {
       isFocused.value = focusNode.hasFocus;
     });
 
-    // 【核心逻辑】Pipeline 流水线
+    // Pipeline 流水线
     // 监听：源数据变化 OR 搜索词变化 OR Tab切换
     // 只要这三个有任意一个变了，就自动重新计算 displayList
     everAll([_allSourceList, searchText, _selectId], (_) => _processPipeline());
@@ -85,7 +85,7 @@ class Homecontroller extends GetxController {
 
   // ========================== 3. 数据处理流水线 ==========================
 
-  /// 这是最关键的函数，统一处理筛选逻辑
+  /// 统一处理筛选逻辑
   void _processPipeline() {
     // 1. 拿副本（基于全量数据开始处理）
     List<PasswordEntry> result = List.from(_allSourceList);
@@ -106,14 +106,14 @@ class Homecontroller extends GetxController {
     displayList.assignAll(result);
   }
 
-  /// 提取出来的常用算法逻辑（纯函数，不修改外部状态）
+  /// 提取出来的"常用“算法逻辑
   List<PasswordEntry> _applyCommonLogic(List<PasswordEntry> inputList) {
     // 过滤掉没用过的
     var tempList = inputList.where((element) => (element.usedCount ?? 0) > 0).toList();
 
     // 排序
     tempList.sort((a, b) {
-      // 你的原始排序逻辑
+      // 原始排序逻辑
       if (a.lastUsedTime == null || a.usedCount == null) return 1;
       if (b.lastUsedTime == null || b.usedCount == null) return -1;
 
@@ -164,9 +164,7 @@ class Homecontroller extends GetxController {
     selectId = index; // 仅仅更新变量，ever 会自动处理后续逻辑
   }
 
-  // 【修复Bug】更新使用次数
-  // 注意：这里必须接收具体的 item 对象，不能只接收 index
-  // 因为 displayList 的 index 和 _allSourceList 的 index 是不一样的！
+  // 更新使用次数
   void updateUsedCountAndLastUsedTime(PasswordEntry item, [bool isFresh = true]) async {
     DateTime lastUsedTime = DateTime.now();
     int usedCount = (item.usedCount ?? 0) + 1;
@@ -195,15 +193,12 @@ class Homecontroller extends GetxController {
   }
 
   void _startResetTimer() {
-    // 重要：每次点击先取消上一次的定时器
-    // 这是为了防止快速点击时，旧的定时器把你新设置的状态给清空了
+    // 每次点击先取消上一次的定时器
     _resetTimer?.cancel();
-      // 1 秒后，清空 ID，UI 就会自动复原
+ 
     _resetTimer = Timer(Duration(milliseconds: 1500), (){
       _copiedId.value = -1;
 
-      // 2. 动画结束了，这时候再去刷新列表数据
-      // 这样用户既看到了变色，列表排序更新也不会显得突兀
       getAllPasswordEntries();
     });
 
@@ -218,7 +213,7 @@ class Homecontroller extends GetxController {
     longPressId = entry.id!;
     isLongPressBorderChanged = true;
     
-    // 0.3秒后跳转到详情页
+    // 0.25秒后跳转到详情页
     _longPressTimer = Timer(Duration(milliseconds: 250), () async{
       if (longPressId == entry.id) {
         final decryptPassword = await EncryptionHelper().decryptPassword(entry.encryptedPassword, entry.nonce,entry.mac);

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:password_book_flutter/pages/ui/theme.dart';
 import './routes/routes.dart';
-import './controllers/ThemeController.dart';
+import 'package:password_book_flutter/controllers/ThemeController.dart';
 
 
 void main() {

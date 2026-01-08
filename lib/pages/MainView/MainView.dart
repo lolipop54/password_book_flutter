@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:password_book_flutter/helpers/DoubleBackToExitWrapper.dart';
+import 'package:password_book_flutter/widgets/DoubleBackToExitWrapper.dart';
 import 'package:password_book_flutter/pages/ui/colors.dart';
 
 import '../Home/Home.dart';
 import '../Settings/Settings.dart';
-import 'MainViewController.dart';
+import 'package:password_book_flutter/controllers/MainViewController.dart';
 class Mainview extends StatefulWidget {
   const Mainview({super.key});
 

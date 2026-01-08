@@ -68,17 +68,17 @@ class Databasehelper {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     // 从版本1升级到版本2：添加common_settings表
-    if (oldVersion < 2) {
-      await db.execute('''
-        CREATE TABLE common_settings(
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          key TEXT UNIQUE NOT NULL,
-          value TEXT NOT NULL,
-          created_at TEXT,
-          updated_at TEXT
-        )
-      ''');
-    }
+    // if (oldVersion < 2) {
+    //   await db.execute('''
+    //     CREATE TABLE common_settings(
+    //       id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //       key TEXT UNIQUE NOT NULL,
+    //       value TEXT NOT NULL,
+    //       created_at TEXT,
+    //       updated_at TEXT
+    //     )
+    //   ''');
+    // }
   }
 
   //用户相关操作

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:password_book_flutter/pages/ui/colors.dart';
 
-import 'BackupController.dart';
+import 'package:password_book_flutter/controllers/BackupController.dart';
 
 class Backup extends StatefulWidget {
   const Backup({super.key});

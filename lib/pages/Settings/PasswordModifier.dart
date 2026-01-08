@@ -4,7 +4,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:password_book_flutter/helpers/AuthHelper.dart';
 import 'package:password_book_flutter/helpers/SnackBarHelper.dart';
-import 'package:password_book_flutter/pages/Settings/SettingsController.dart';
+import 'package:password_book_flutter/controllers/SettingsController.dart';
 
 import '../ui/colors.dart';
 

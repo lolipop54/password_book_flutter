@@ -13,7 +13,7 @@ class EncryptionHelper{
 
   Pbkdf2 pbkdf2 = Pbkdf2(
     macAlgorithm: Hmac.sha256(),
-    iterations: 10000,     // 迭代次数，越高越安全但也越慢，推荐 10万+
+    iterations: 10000,     // 迭代次数，越高越安全但也越慢
     bits: 256,             // 生成 256 位密钥 (对应 AesGcm.with256bits)
   );
   AesGcm AES256 = AesGcm.with256bits();
@@ -37,7 +37,7 @@ class EncryptionHelper{
     return base64Encode(secretKeyBytes);
   }
 
-  Future<SecretBox> encryptPassword(String password) async{
+  Future<SecretBox> encryptPassword(String password, {String? customSecretKey}) async{
     // 每次加密都需要一个新的、随机的 Nonce
     final nonce = AES256.newNonce();
 
@@ -45,21 +45,20 @@ class EncryptionHelper{
 
     SecretBox secretBox = await AES256.encrypt(
       passwordBytes,
-      secretKey: SecretKey(base64Decode(_secretKey)),
+      secretKey: SecretKey(base64Decode(customSecretKey ?? _secretKey)),
       nonce: nonce,
     );
 
     return secretBox;
   }
 
-  Future<String> decryptPassword(String encryptedPassword, String nonce, String mac) async{
-    // --- 解密过程 ---
+  Future<String> decryptPassword(String encryptedPassword, String nonce, String mac, {String? customSecretKey}) async{
     try {
       final secretBox = SecretBox(base64Decode(encryptedPassword),nonce: base64Decode(nonce), mac: Mac(base64Decode(mac)));
 
       final decryptedPassword = await AES256.decrypt(
         secretBox,
-        secretKey: SecretKey(base64Decode(_secretKey)),
+        secretKey: SecretKey(base64Decode(customSecretKey ?? _secretKey)),
       );
 
       return utf8.decode(decryptedPassword);
@@ -84,7 +83,7 @@ class EncryptionHelper{
 
     final _argon2 = Argon2id(
       parallelism: 2, // 并行线程数
-      memory: 10 * 1024, // 内存消耗 (以 KB 为单位)，例如 19MB
+      memory: 10 * 1024, // 内存消耗 (以 KB 为单位)
       iterations: 2, // 迭代次数
       hashLength: 32, // 生成的哈希长度 (字节)
     );
@@ -108,11 +107,9 @@ class EncryptionHelper{
       String inputPassword, String storedSalt, String storedHash) async {
     try {
       // 1. 重新计算哈希
-      // 直接复用 hashPassword 方法，确保使用完全相同的 Argon2 参数配置
       final calculatedHash = await hashPassword(inputPassword, storedSalt);
 
       // 2. 比较哈希值
-      // 推荐使用常量时间比较 (Constant-time comparison) 以防止时序攻击
       return _constantTimeStringEquals(calculatedHash, storedHash);
     } catch (e) {
       // 如果 Salt 格式错误或计算出错，视为验证失败
@@ -121,7 +118,6 @@ class EncryptionHelper{
   }
 
   /// 辅助函数：常量时间比较两个字符串 (防止时序攻击)
-  /// 如果只使用普通 `==` 比较，在极高安全要求的场景下，黑客可能通过响应时间推测出哈希的前几位
   static bool _constantTimeStringEquals(String a, String b) {
     if (a.length != b.length) return false;
 
@@ -135,5 +131,39 @@ class EncryptionHelper{
     return result == 0;
   }
 
+  /// 生成随机密码
+  static String generateRandomPassword({
+    int length = 12,
+    bool includeSymbols = true,
+  }) {
+    const String uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const String lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+    const String numberChars = '0123456789';
+    const String specialChars = '!@#\$%^&*()_+-=[]{}|;:,.<>?';
 
+    final random = Random.secure();
+    String charset = uppercaseChars + lowercaseChars + numberChars;
+    if (includeSymbols) charset += specialChars;
+
+    // 确保至少包含一个来自每个选中字符集的字符
+    List<String> requiredChars = [];
+    requiredChars.add(uppercaseChars[random.nextInt(uppercaseChars.length)]);
+    requiredChars.add(lowercaseChars[random.nextInt(lowercaseChars.length)]);
+    requiredChars.add(numberChars[random.nextInt(numberChars.length)]);
+    if (includeSymbols) {
+      requiredChars.add(specialChars[random.nextInt(specialChars.length)]);
+    }
+
+    String password = requiredChars.join('');
+
+    // 填充剩余长度
+    for (int i = requiredChars.length; i < length; i++) {
+      password += charset[random.nextInt(charset.length)];
+    }
+
+    // 打乱密码字符顺序
+    List<String> passwordList = password.split('');
+    passwordList.shuffle(random);
+    return passwordList.join('');
+  }
 }

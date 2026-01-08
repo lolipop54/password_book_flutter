@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:password_book_flutter/helpers/DatabaseHelper.dart';
+import '../helpers/DatabaseHelper.dart';
 
 class ThemeController extends GetxController {
   static ThemeController get to => Get.find();

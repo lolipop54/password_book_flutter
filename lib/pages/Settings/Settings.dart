@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:password_book_flutter/helpers/AuthHelper.dart';
-import 'package:password_book_flutter/pages/Settings/SettingsController.dart';
+import 'package:password_book_flutter/controllers/SettingsController.dart';
 import 'package:password_book_flutter/controllers/ThemeController.dart';
 
 import '../ui/colors.dart';

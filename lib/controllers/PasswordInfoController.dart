@@ -4,13 +4,13 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:password_book_flutter/entity/PasswordEntry.dart';
-import 'package:password_book_flutter/helpers/AuthHelper.dart';
-import 'package:password_book_flutter/helpers/DatabaseHelper.dart';
-import 'package:password_book_flutter/helpers/EncryptionHelper.dart';
-import 'package:password_book_flutter/helpers/SnackBarHelper.dart';
+import '../entity/PasswordEntry.dart';
+import '../helpers/AuthHelper.dart';
+import '../helpers/DatabaseHelper.dart';
+import '../helpers/EncryptionHelper.dart';
+import '../helpers/SnackBarHelper.dart';
 
-import '../HomeController.dart';
+import 'HomeController.dart';
 
 class PasswordInfocontroller extends GetxController{
   TextEditingController titleController = TextEditingController();
@@ -62,15 +62,9 @@ class PasswordInfocontroller extends GetxController{
   int get updateEntryId => _updateEntryId.value;
   set updateEntryId(int value) => _updateEntryId.value = value;
 
-  // 字符集定义
-  static const String _uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  static const String _lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
-  static const String _numberChars = '0123456789';
-  static const String _specialChars = '!@#\$%^&*()_+-=[]{}|;:,.<>?';
-
   GlobalKey<FormState> keyForm = GlobalKey<FormState>();
 
-  Homecontroller homecontroller = Get.find<Homecontroller>();
+  HomeController homeController = Get.find<HomeController>();
 
 
 
@@ -100,7 +94,7 @@ class PasswordInfocontroller extends GetxController{
 
     Databasehelper().insertPasswordEntry(entry);
     Get.back();
-    homecontroller.getAllPasswordEntries();
+    homeController.getAllPasswordEntries();
   }
   
   // 更新密码条目
@@ -123,8 +117,8 @@ class PasswordInfocontroller extends GetxController{
       PasswordEntry? originalEntry = await Databasehelper().getPasswordEntryById(updateEntryId);
       if (originalEntry != null) {
         encryptedPassword = originalEntry.encryptedPassword;
-        nonce = originalEntry.nonce ?? '';
-        mac = originalEntry.mac ?? '';
+        nonce = originalEntry.nonce;
+        mac = originalEntry.mac;
       } else {
         // 如果获取不到原始条目，则重新加密
         final secretBox = await EncryptionHelper().encryptPassword(passwordController.text);
@@ -133,7 +127,6 @@ class PasswordInfocontroller extends GetxController{
         mac = base64Encode(secretBox.mac.bytes);
       }
     } else {
-      print('密码已更新,' + "旧密码${entryArg.encryptedPassword} 新密码${passwordController.text}");
       // 密码被修改了，重新加密
       final secretBox = await EncryptionHelper().encryptPassword(passwordController.text);
       nonce = base64Encode(secretBox.nonce);
@@ -160,7 +153,7 @@ class PasswordInfocontroller extends GetxController{
     final displayEntry = entry.copyWith(encryptedPassword: passwordController.text);
     Get.back(result: displayEntry);
     
-    homecontroller.getAllPasswordEntries();
+    homeController.getAllPasswordEntries();
     }catch(e,stack){
       print(e);
       print(stack);
@@ -244,62 +237,17 @@ class PasswordInfocontroller extends GetxController{
   }
 
   void onGeneratePassword(){
-    final random = Random.secure();
-
-    String charset = '';
-
-    // 构建字符集
-    charset += _uppercaseChars;
-    charset += _lowercaseChars;
-    charset += _numberChars;
-    if (selectedSymbols == '包含') charset += _specialChars;
-
-    // 生成密码
-    String password = '';
-    final int length = selectedLength;
-
-    // 确保至少包含一个来自每个选中字符集的字符
-    List<String> requiredChars = [];
-
-    String chars = _uppercaseChars;
-    if (chars.isNotEmpty) {
-      requiredChars.add(chars[random.nextInt(chars.length)]);
-    }
-    chars = _lowercaseChars;
-    if (chars.isNotEmpty) {
-      requiredChars.add(chars[random.nextInt(chars.length)]);
-    }
-    chars = _numberChars;
-    if (chars.isNotEmpty) {
-      requiredChars.add(chars[random.nextInt(chars.length)]);
-    }
-    if(selectedSymbols == '包含'){
-      chars = _specialChars;
-      if (chars.isNotEmpty) {
-        requiredChars.add(chars[random.nextInt(chars.length)]);
-      }
-    }
-    // 添加必需字符
-    password += requiredChars.join('');
-
-    // 填充剩余长度
-    for(int i = requiredChars.length;i < length; i++){
-      password += charset[random.nextInt(charset.length)];
-    }
-
-    // 打乱密码字符顺序
-    List<String> passwordList = password.split('');
-    passwordList.shuffle(random);
-    password = passwordList.join('');
-
-    generatePassword = password;
+    generatePassword = EncryptionHelper.generateRandomPassword(
+      length: selectedLength,
+      includeSymbols: selectedSymbols == '包含',
+    );
   }
 
   Future<void> onDeletePassword(int id) async {
     try {
       await Databasehelper().deletePasswordEntry(id);
       Get.back(); // 返回上一页 (Home)
-      homecontroller.getAllPasswordEntries(); // 刷新列表
+      homeController.getAllPasswordEntries(); // 刷新列表
       SnackBarHelper.showSnackbar('删除成功', '密码条目已删除', true);
     } catch (e) {
       print(e);
